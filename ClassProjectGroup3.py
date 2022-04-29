@@ -337,6 +337,46 @@ def answerQuestions():
         stopTimer(start_time, 3)
 
 
+def searchData():
+    global data
+    
+    # Starting Timer
+    start_time = startTimer()
+
+    if(data.empty):
+        print("-- ERROR: No data to clean. Load data first. --")        
+        # Stopping Timer
+        stopTimer(start_time, 3)
+        return data
+    else:
+        if(data_clean_flag != 1):
+            print("\n-- Data has NOT been cleaned. Data SHOULD be cleaned before",
+                "searching accidents. --")
+            data['Start_Time'] = pd.to_datetime(data['Start_Time'])
+            data['End_Time'] = pd.to_datetime(data['End_Time'])
+
+        print(" Search Accidents:")
+        print("*****************")
+        inState = input(" Enter a State name:     ")
+        inCity = input(" Enter a City name:      ")
+        inZIP = input(" Enter a ZIP Code:       ")
+
+    #################################################
+    ac_search = data.loc[:, ('State', 'City', 'Zipcode')]
+    # Remove rows where state is not same as userinput
+    ac_search = ac_search [ac_search['State'] == inState]
+    # Remove rows where city is not same as userinput
+    ac_search = ac_search [ac_search['City'] == inCity]
+    # Remove rows where ZIP is not same as userinput
+    ac_search = ac_search [ac_search['Zipcode'] == inZIP]
+
+    #ac_counts = ac_search[('State', 'City', 'Zipcode')].value_counts()[0]
+
+    #print("[", time.time() - start_time, "] There were ", ac_counts, "accidents. \n")
+
+
+
+
 def menu():
     menuOption = '-1'
     loadCount = 0
@@ -345,6 +385,8 @@ def menu():
     clean_av = 0
     answerCount = 0
     answer_av = 0
+    searchCount = 0
+    search_av = 0
 
     data = pd.DataFrame()
     while(menuOption != 'q' and menuOption != 'Q'):
@@ -352,6 +394,7 @@ def menu():
         print("Enter 1 to load data from CSV file")
         print("Enter 2 to clean loaded data")
         print("Enter 3 to answer questions")
+        print("Enter 4 to Search Accidents (Use City, State, and Zip Code)")
         print("Enter q to quit")
         print("--                               --")
         menuOption = input("Enter an option:  ")
@@ -366,6 +409,9 @@ def menu():
         elif(menuOption == '3'):
             answerQuestions()
             answerCount += 1
+        elif(menuOption == '4'):
+            searchData()
+            searchCount += 1
     
     print("\n--             TIMING RESULTS:             --")
     print("Total runtime of the program:", total_time, "\n")
