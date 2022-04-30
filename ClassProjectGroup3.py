@@ -370,10 +370,21 @@ def searchData():
     # Remove rows where ZIP is not same as userinput
     ac_search = ac_search [ac_search['Zipcode'] == inZIP]
 
-    #ac_counts = ac_search[('State', 'City', 'Zipcode')].value_counts()[0]
+    # Number of accidents in userinput state, city, and zipcode
+    accident_count = (ac_search[('State')].value_counts()[inState]) & (ac_search['City'].value_counts()[inCity]) & (ac_search['Zipcode'].value_counts()[inZIP])
+    #Number of accidents in userinput City
+    #city_count = city_search['City'].value_counts()[inCity]
+    #Number of accidents in userinput Zipcode
+    #zip_count = zip_search['Zipcode'].value_counts()[inZIP]
 
-    #print("[", time.time() - start_time, "] There were ", ac_counts, "accidents. \n")
-
+    print("[", time.time() - start_time, "]", 
+    "There are", accident_count, "accidents."
+    #"There are", city_count,  "accidents in", inCity,". "
+    #"There are", zip_count, "accidents in", inZIP, "."
+    "\n")
+    
+    # Stopping Timer
+    stopTimer(start_time, 3)
 
 
 
