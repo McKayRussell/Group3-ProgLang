@@ -7,7 +7,6 @@
 # Student 3: McKay Russell
 # description: Implements Basic Data Analysis Routines
 
-import re
 import pandas as pd
 import time
 
@@ -23,12 +22,11 @@ new_data_flag = 0
 data_clean_flag = 0
 
 def startTimer():
-
     # Starting Timer
     print("************************************")
     print("-- STARTING TIMER --")
     start_time = time.time()
-    print("-- RUNTIME: [", time.time() - start_time, "] --\n")
+    print(f"-- RUNTIME: [{time.time() - start_time}] --\n")
     return start_time
 
 
@@ -43,9 +41,9 @@ def stopTimer(start_time, caller):
 
     # Stopping Timer
     print("\n-- STOPPING TIMER --")
-    print("-- RUNTIME: [", time.time() - start_time, "] --")
+    print(f"-- RUNTIME: [{time.time() - start_time}] --")
     print("************************************")
-    print("\n")
+    print("")
 
     if(caller == 1):
         load_time += time.time() - start_time
@@ -57,7 +55,7 @@ def stopTimer(start_time, caller):
         search_state_time += time.time() - start_time
     elif(caller == 5):
         search_year_time += time.time() - start_time
-    elif(caller == 7):
+    elif(caller == 6):
         search_temp_time += time.time() - start_time
 
     total_time += time.time() - start_time
@@ -75,16 +73,15 @@ def loadData():
     # Starting Timer
     start_time = startTimer()
 
-    print("\nLoading input data set:")
-    # print("************************************")
     # Read data in from file and store in pandas dataframe
+    print("Loading input data set:")
     if(fileName == ""):
         data = pd.read_csv('US_Accidents_data.csv', index_col = 0)
-        print("[", time.time() - start_time, "] Loading US_Accidents_data.csv")
+        print(f"[{time.time() - start_time}] Loading US_Accidents_data.csv")
     else:
         try:
             data = pd.read_csv(fileName)
-            print("[", time.time() - start_time, f"] Loading {fileName}")
+            print(f"[{time.time() - start_time}] Loading {fileName}")
         except:
             data = pd.DataFrame()
             print("-- File entered could not be read. --")
@@ -99,8 +96,7 @@ def loadData():
         'Weather_Condition' not in data.columns):
 
         print("-- File not suitable for processing, necessary data not found",
-            "in file. --")
-        print("-- Choose another file. --")
+            "in file. Choose another file. --")
         data = pd.DataFrame()
 
     # Stopping Timer
@@ -126,10 +122,9 @@ def dataCleanup():
     start_time = startTimer()
 
     print("Cleaning input data set:")
-    # print("************************************")
-    print("[", time.time() - start_time, "] Performing Data Clean Up")
+    print(f"[{time.time() - start_time}] Performing Data Clean Up")
 
-    # If possible, drop rows that have missing values in certain columns
+    # Drop rows that have missing values in certain columns
     data.dropna(subset=['ID', 'Severity', 'Start_Time', 'End_Time',
         'Zipcode', 'Country', 'Visibility(mi)', 'Weather_Condition'],
         inplace=True)
@@ -148,10 +143,10 @@ def dataCleanup():
     data['End_Time'] = pd.to_datetime(data['End_Time'])
     data = data[(data['End_Time']-data['Start_Time']) != "0 days 00:00:00"]
     
-    # Print timing of data clean
-    print("[", time.time() - start_time, "] Printing row count after data",
+    # Print timing of data clean and resulting amount of rows
+    print(f"[{time.time() - start_time}] Printing row count after data",
         "clean is finished")
-    print("[", time.time() - start_time, "]", len(data.index), "rows\n")
+    print(f"[{time.time() - start_time}] {len(data.index)} rows")
 
     # Stopping Timer
     stopTimer(start_time, 2)
@@ -167,7 +162,7 @@ def answerQuestions():
         print("-- ERROR: No data. Load data first. --")
         return data
     elif(data_clean_flag != 1):
-        print("\n-- Data has NOT been cleaned. Data SHOULD be cleaned before",
+        print("-- Data has NOT been cleaned. Data SHOULD be cleaned before",
             "answering questions. --")
         data['Start_Time'] = pd.to_datetime(data['Start_Time'])
         data['End_Time'] = pd.to_datetime(data['End_Time'])
@@ -175,14 +170,14 @@ def answerQuestions():
     # Starting Timer
     start_time = startTimer()
 
-    print("\nAnswering questions:")
+    print("Answering questions:")
     print("********************")
 
     ###########################################################
     #                          Question 1
 
-    print("[", time.time() - start_time, "]",
-        "1. In what month were there more accidents reported?")
+    print(f"[{time.time() - start_time}]",
+    "1. In what month were there more accidents reported?")
 
     months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
         'August', 'September', 'October', 'November', 'December']
@@ -198,14 +193,14 @@ def answerQuestions():
         highest_month = ['more than 0', 'more than 0']
         month_index = 1
     
-    print("[", time.time() - start_time, "]", months[month_index-1],
-        "with", highest_month[month_index], "total reports.\n")
+    print(f"[{time.time() - start_time}] {months[month_index-1]}",
+    f"with {highest_month[month_index]} total reports.\n")
 
     ###########################################################
     #                          Question 2
 
-    print("[", time.time() - start_time, "]",
-        "2. What is the state that had the most accidents in 2020?")
+    print(f"[{time.time() - start_time}]",
+    "2. What is the state that had the most accidents in 2020?")
 
     # Copy columns into new data frame
     state_2020 = data.loc[:, ('Start_Time', 'State')]
@@ -219,13 +214,13 @@ def answerQuestions():
         top_state = "No state found"
         state_counts = "0 or more"
 
-    print("[", time.time() - start_time, "]", top_state, "with", state_counts,
-        "total reports in 2020.\n")
+    print(f"[{time.time() - start_time}] {top_state} with {state_counts}",
+    "total reports in 2020.\n")
 
     ###########################################################
     #                          Question 3
 
-    print("[", time.time() - start_time, "]",
+    print(f"[{time.time() - start_time}]",
     "3. What is the state that had the most accidents of severity 2 in 2021?")
 
     # Copy columns into new data frame
@@ -242,14 +237,14 @@ def answerQuestions():
         top_state = "No state found"
         state_counts = "0 or more"
 
-    print("[", time.time() - start_time, "]", top_state, "with", state_counts,
-        "total reports of severity 2 in 2020.\n")
+    print(f"[{time.time() - start_time}] {top_state} with {state_counts}",
+    "total reports of severity 2 in 2020.\n")
 
     ###########################################################
     #                          Question 4
 
-    print("[", time.time() - start_time, "]",
-        "4. What severity is the most common in Virginia?")
+    print(f"[{time.time() - start_time}]",
+    "4. What severity is the most common in Virginia?")
 
     sev_Virginia = data.loc[:, ('Severity', 'State')]
     sev_Virginia = sev_Virginia [sev_Virginia['State'] == "VA"]
@@ -261,15 +256,15 @@ def answerQuestions():
         top_sev = "not found"
         sev_counts = "0 or more"
 
-    print("[", time.time() - start_time, "] Severity", top_sev, "with",
-        sev_counts, "occurrences in Virginia.\n")
+    print(f"[{time.time() - start_time}] Severity {top_sev} with",
+    f"{sev_counts} occurrences in Virginia.\n")
 
     ###########################################################
     #                          Question 5
 
-    print("[", time.time() - start_time, "]",
-        "5. What are the 5 cities that had the most accidents in 2019 in",
-        "California?")
+    print(f"[{time.time() - start_time}]",
+    "5. What are the 5 cities that had the most accidents in 2019 in",
+    "California?")
 
     cali_2019 = data.loc[:, ('Start_Time', 'City', 'State')]
     cali_2019 = cali_2019 [cali_2019['Start_Time'].dt.year == 2019]
@@ -277,60 +272,44 @@ def answerQuestions():
     try:
         top_cities = cali_2019['City'].value_counts().index.tolist()[:5]
         city_counts = cali_2019['City'].value_counts()[:5]
-        print("[", time.time() - start_time, "]",
-        top_cities[0], "with", city_counts[top_cities[0]], "reports,",
-        top_cities[1], "with", city_counts[top_cities[1]], "reports,",
-        top_cities[2], "with", city_counts[top_cities[2]], "reports,\n\t\t",
-        "    ", top_cities[3], "with", city_counts[top_cities[3]], "reports,",
-        "and", top_cities[4], "with", city_counts[top_cities[4]], "reports.\n")
+        #Print results
+        print(f"[{time.time() - start_time}] {top_cities[0]} with",
+        f"{city_counts[top_cities[0]]} reports, {top_cities[1]} with",
+        f"{city_counts[top_cities[1]]} reports, {top_cities[2]} with",
+        f"{city_counts[top_cities[2]]} reports, {top_cities[3]} with",
+        f"{city_counts[top_cities[3]]} reports, and {top_cities[4]} with",
+        f"{city_counts[top_cities[4]]} reports.\n")
     except:
-        print("[", time.time() - start_time, "]",
-            "Not enough data to answer the question.\n")
+        print(f"[{time.time() - start_time}]",
+        "-- Not enough data to answer the question. --\n")
 
     ###########################################################
     #                          Question 6
 
-    print("[", time.time() - start_time, "]",
-        "6. What was the average humidity and average temperature of all",
-        "accidents of severity 4 that occurred in 2021?")
+    print(f"[{time.time() - start_time}]",
+    "6. What was the average humidity and average temperature of all",
+    "accidents of severity 4 that occurred in 2021?")
 
     temp_2021 = data.loc[:, ('Severity', 'Start_Time', 'Temperature(F)', 
         'Humidity(%)')]
     temp_2021 = temp_2021 [temp_2021['Severity'] == 4]
     temp_2021 = temp_2021 [temp_2021['Start_Time'].dt.year == 2021]
-    av_humidity = temp_2021['Humidity(%)'].sum()
-    humidity_count = len(temp_2021['Humidity(%)'].index)
-    av_temp = temp_2021['Temperature(F)'].sum()
-    temp_count = len(temp_2021['Temperature(F)'].index)
+    av_humidity = round(temp_2021['Humidity(%)'].mean(), 2)
+    av_temp = round(temp_2021['Temperature(F)'].mean(), 2)
 
-    flag = 0
-    if humidity_count == 0:
-        print("\t\t     Cannot compute average humidity.",
-            "Divide by zero error.")
-        flag = 1
-    else:
-        av_humidity = av_humidity / humidity_count
-        av_humidity = round(av_humidity, 2)
-    if temp_count == 0:
-        print("\t\t     Cannot compute average temperature.",
-            "Divide by zero error.")
-        flag = 1
-    else:
-        av_temp = av_temp / temp_count
-        av_temp = round(av_temp, 2)
-
-    if flag == 0:
-        print("[", time.time() - start_time, "] Average humidity was",
-        av_humidity, "and average temperature was", av_temp, "for all",
-        "accidents of severity 4\n\t\t     that occurred in 2021.\n")
-    else:
-        print("[", time.time() - start_time, "]",
-        "\t\t-- DIVIDE BY ZERO ERROR --\n")
+    if(pd.isna(av_humidity)):
+        av_humidity = "unable to be calculated"
+    if(pd.isna(av_temp)):
+        av_temp = "unable to be calculated"
+    
+    print(f"[{time.time() - start_time}] Average humidity was",
+    f"{av_humidity} and average temperature was {av_temp} for all",
+    "accidents of severity 4 that occurred in 2021.\n")
 
     ###########################################################
     #                          Question 7
 
-    print("[", time.time() - start_time, "]",
+    print(f"[{time.time() - start_time}]",
     "7. What are the 3 most common weather conditions (weather_conditions)",
     "when accidents occurred?")
 
@@ -338,19 +317,20 @@ def answerQuestions():
     top_weather = top_weather.value_counts()[:3]
 
     try:
-        print("[", time.time() - start_time, "] The 3 most common weather",
-        "conditions were", top_weather.index.tolist()[0], "with",
-        top_weather[0], "occurrences,", top_weather.index.tolist()[1],
-        "with", top_weather[1], "occurrences,\n\t\t      and",
-        top_weather.index.tolist()[2], "with", top_weather[2],"occurrences.\n")
+        print(f"[{time.time() - start_time}] The 3 most common weather",
+        f"conditions were {top_weather.index.tolist()[0]} with",
+        f"{top_weather[0]} occurrences, {top_weather.index.tolist()[1]}",
+        f"with {top_weather[1]} occurrences, and",
+        f"{top_weather.index.tolist()[2]} with {top_weather[2]} occurrences."
+        "\n")
     except:
-        print("[", time.time() - start_time, "]",
-            "Not enough data to answer the question.\n")
+        print(f"[{time.time() - start_time}]",
+            "-- Not enough data to answer the question. --\n")
 
     ###########################################################
     #                          Question 8
 
-    print("[", time.time() - start_time, "]",
+    print(f"[{time.time() - start_time}]",
     "8. What was the maximum visibility of all accidents of severity 2 that",
     "occurred in the state of New Hampshire?")
 
@@ -361,39 +341,39 @@ def answerQuestions():
     NH_vis = NH_vis['Visibility(mi)'].value_counts()
 
     try:
-        print("[", time.time() - start_time, "] The max visibility of all",
-            "accidents of severity 2 in New Hampshire is",
-            max_vis, "with", NH_vis[max_vis], "occurrences.\n")
+        print(f"[{time.time() - start_time}] The max visibility of all",
+        f"accidents of severity 2 in New Hampshire is {max_vis} with",
+        f"{NH_vis[max_vis]} occurrences.\n")
     except:
-        print("[", time.time() - start_time, "]",
-            "Not enough data to answer the question.\n")
+        print(f"[{time.time() - start_time}]",
+            "-- Not enough data to answer the question. --\n")
 
     ###########################################################
     #                          Question 9
 
-    print("[", time.time() - start_time, "]",
-        "9. How many accidents of each severity were recorded in Bakersfield?")
+    print(f"[{time.time() - start_time}]",
+    "9. How many accidents of each severity were recorded in Bakersfield?")
 
     sev_Bako = data.loc[:, ('Severity', 'City')]
     sev_Bako = sev_Bako [sev_Bako['City'] == "Bakersfield"]
     sev_Bako = sev_Bako['Severity'].value_counts()
 
     try:
-        print("[", time.time() - start_time, "] In Bakersfield there were",
-            sev_Bako[sev_Bako.index.tolist()[0]], "accidents of severity",
-            sev_Bako.index.tolist()[0], ",",
-            sev_Bako[sev_Bako.index.tolist()[1]],
-            "of severity", sev_Bako.index.tolist()[1], ", and",
-            sev_Bako[sev_Bako.index.tolist()[2]], "of severity", 
-            sev_Bako.index.tolist()[2], "\n")
+        print(f"[{time.time() - start_time}] In Bakersfield there were",
+        f"{sev_Bako[sev_Bako.index.tolist()[0]]} accidents of severity",
+        f"{sev_Bako.index.tolist()[0]},",
+        f"{sev_Bako[sev_Bako.index.tolist()[1]]} of severity",
+        f"{sev_Bako.index.tolist()[1]}, and",
+        f"{sev_Bako[sev_Bako.index.tolist()[2]]} of severity", 
+        f"{sev_Bako.index.tolist()[2]}.\n")
     except:
-        print("[", time.time() - start_time, "]",
-            "Not enough data to answer the question.\n")
+        print(f"[{time.time() - start_time}]",
+            "-- Not enough data to answer the question. --\n")
 
     ###########################################################
     #                          Question 10
 
-    print("[", time.time() - start_time, "]",
+    print(f"[{time.time() - start_time}]",
     "10. What was the longest accident (in hours) recorded in Florida in the",
     "Spring (March, April, and May) of 2020?")
 
@@ -407,19 +387,19 @@ def answerQuestions():
 
     if longest_Flo == "NaT":
         hours_Flo = 0
-        print("\t\t\t-- ERROR: Insufficient data to calculate. Total hours",
-                "will be 0 --")
+        print(f"[{time.time() - start_time}]",
+            "-- Insufficient data to calculate. Total hours will be 0 --")
     else:
         days_to_hours = int(longest_Flo.split()[0]) * 24
         longest_Flo = longest_Flo.split()[2]
         hours_Flo = int(longest_Flo.split(":")[0])
         minutes_to_hours = int(longest_Flo.split(":")[1]) / 60
-        seconds_to_hours = int(longest_Flo.split(":")[2]) / 360
+        seconds_to_hours = int(longest_Flo.split(":")[2]) / 3600
         hours_Flo = (days_to_hours + hours_Flo +
-                minutes_to_hours + seconds_to_hours)
+                    minutes_to_hours + seconds_to_hours)
 
-    print("[", time.time() - start_time, "] The longest accident in Spring of",
-    "2022 in Florida was approximately", round(hours_Flo, 4), "hours long.\n")
+    print(f"[{time.time() - start_time}] The longest accident in Spring of",
+    f"2022 in Florida was approximately {round(hours_Flo, 4)} hours long.")
     
     # Stopping Timer
     stopTimer(start_time, 3)
@@ -476,7 +456,7 @@ def stateSearch():
         output = f"There were {accident_count} accidents in "
         output = output + outState + outCity + outZIP
 
-    print("\n[", time.time() - start_time, f"] {output}")
+    print(f"[{time.time() - start_time}] {output}")
     
     # Stopping Timer
     stopTimer(start_time, 4)
@@ -493,7 +473,7 @@ def yearSearch():
         data['Start_Time'] = pd.to_datetime(data['Start_Time'])
         data['End_Time'] = pd.to_datetime(data['End_Time'])
 
-    print("\nSearch Accidents:")
+    print("Search Accidents:")
     print("*****************")
     inYear = input("  Enter a year (2016-2021):   ")
     inMonth = input("  Enter a month:              ")
@@ -550,7 +530,7 @@ def yearSearch():
         output = f"There were {accident_count} accidents in "
         output = output + outYear + outMonth +  outDay
 
-    print("\n[", time.time() - start_time, f"] {output}")
+    print(f"[{time.time() - start_time}] {output}")
 
     stopTimer(start_time, 5)
 
@@ -566,35 +546,35 @@ def tempSearch():
         data['Start_Time'] = pd.to_datetime(data['Start_Time'])
         data['End_Time'] = pd.to_datetime(data['End_Time'])
 
-    print("\nSearch Accidents:")
+    print("Search Accidents:")
     print("*****************")
     print("Enter a temperature range:")
     inTempLow = input("  Lower bound:   ")
     inTempHigh = input("  Upper bound:   ")
     print("Enter a visibility range:")
-    inVisLow = input("  Lower bound:    ")
-    inVisHigh = input("  Upper bound:    ")
+    inVisLow = input("  Lower bound:   ")
+    inVisHigh = input("  Upper bound:   ")
 
     # Copy required columns of data frame
     ac_search = data.loc[:, ('Temperature(F)', 'Visibility(mi)')]
 
     try:
-        inTempLow = int(inTempLow)
+        inTempLow = float(inTempLow)
     except ValueError:
         inTempLow = ac_search['Temperature(F)'].min()
     
     try:
-        inTempHigh = int(inTempHigh)
+        inTempHigh = float(inTempHigh)
     except ValueError:
         inTempHigh = ac_search['Temperature(F)'].max()
     
     try:
-        inVisLow = int(inVisLow)
+        inVisLow = float(inVisLow)
     except ValueError:
         inVisLow = ac_search['Visibility(mi)'].min()
     
     try:
-        inVisHigh = int(inVisHigh)
+        inVisHigh = float(inVisHigh)
     except ValueError:
         inVisHigh = ac_search['Visibility(mi)'].max()
 
@@ -605,14 +585,14 @@ def tempSearch():
 
     ac_search = ac_search [ac_search['Temperature(F)'] >= inTempLow]
     ac_search = ac_search [ac_search['Temperature(F)'] <= inTempHigh]
-    ac_search = ac_search [ac_search['Visibility(mi)'] <= inVisLow]
+    ac_search = ac_search [ac_search['Visibility(mi)'] >= inVisLow]
     ac_search = ac_search [ac_search['Visibility(mi)'] <= inVisHigh]
     accident_count = len(ac_search.index)
 
     # Number of all accidents
-    print("\n[", time.time() - start_time, "]", accident_count,
-    "accident(s) with temps in the range of", inTempLow, "to", inTempHigh,
-    "degrees and visibility in the range of ", inVisLow, "to", inVisHigh)
+    print(f"[{time.time() - start_time}] {accident_count}",
+    f"accident(s) with temps in the range of {inTempLow} to {inTempHigh}",
+    f"degrees and visibility in the range of {inVisLow} to {inVisHigh}")
     
     # Stopping Timer
     stopTimer(start_time, 6)
@@ -633,7 +613,7 @@ def menu():
     search_temp_av = 0
     
     while(menuOption != '7'):
-        print("\n--             MENU:             --")
+        print("\n----           MENU:           ----")
         print("(1) Load data")
         print("(2) Process data")
         print("(3) Print Answers")
@@ -641,7 +621,7 @@ def menu():
         print("(5) Search Accidents (Year, Month and Day)")
         print("(6) Search Accidents (Temperature Range and Visibility Range)")
         print("(7) Quit")
-        print("--                               --")
+        print("------                       ------")
         menuOption = input("Enter an option:  ")
         print("\n")
 
@@ -664,48 +644,48 @@ def menu():
             tempSearch()
             searchTempCount += 1
     
-    print("\n--             TIMING RESULTS:             --")
+    print("\n----           TIMING RESULTS:           ----")
     print("Total runtime of program parts:", total_time, "\n")
     if(loadCount != 0):
         load_av = load_time/loadCount
-        print("Load data chosen", loadCount, "time(s), with average runtime",
-            "of", load_av)
+        print(f"Load data chosen {loadCount} time(s), with average runtime",
+            f"of {load_av}")
     else:
         print("Load data chosen 0 times.")
     if(cleanCount != 0):
         clean_av = clean_time/cleanCount
-        print("Clean data chosen", cleanCount, "time(s), with average runtime",
-            "of", clean_av)
+        print(f"Clean data chosen {cleanCount} time(s), with average runtime",
+            f"of {clean_av}")
     else:
         print("Clean data chosen 0 times.")
     if(answerCount != 0):
         answer_av = answer_time/answerCount
-        print("Answer questions chosen", answerCount, "time(s), with average",
-            "runtime of", answer_av)
+        print(f"Answer questions chosen {answerCount} time(s), with average",
+            f"runtime of {answer_av}")
     else:
         print("Answer questions chosen 0 times.")
     if(searchStateCount != 0):
         search_state_av = search_state_time/searchStateCount
-        print("State search chosen", searchStateCount, "time(s), with average",
-            "runtime of", search_state_av)
+        print(f"State search chosen {searchStateCount} time(s), with average",
+            f"runtime of {search_state_av}")
     else:
         print("State search chosen 0 times.")
     if(searchYearCount != 0):
         search_year_av = search_year_time/searchYearCount
-        print("Year search chosen", searchYearCount, "time(s), with average",
-            "runtime of", search_year_av)
+        print(f"Year search chosen {searchYearCount} time(s), with average",
+            f"runtime of {search_year_av}")
     else:
         print("Year search chosen 0 times.")
     if(searchTempCount != 0):
         search_temp_av = search_temp_time/searchTempCount
-        print("Temp search chosen", searchTempCount, "time(s), with average",
-            "runtime of", search_temp_av)
+        print(f"Temp search chosen {searchTempCount} time(s), with average",
+            f"runtime of {search_temp_av}")
     else:
         print("Temp search chosen 0 times.")
 
     total_av = (load_av + clean_av + answer_av + search_state_av +
                 search_year_av + search_temp_av)
-    print("Total average time:", total_av)
-    print("--                                         --\n")
+    print(f"Total average time: {total_av}")
+    print("------                                 ------\n")
 
 menu()
