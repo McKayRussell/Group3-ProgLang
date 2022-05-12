@@ -10,7 +10,10 @@
 import pandas as pd
 import time
 
+# Initialize an empty, global data frame
 data = pd.DataFrame()
+
+# Initialize time and flag variables
 total_time = 0
 load_time = 0
 clean_time = 0
@@ -21,15 +24,16 @@ search_temp_time = 0
 new_data_flag = 0
 data_clean_flag = 0
 
+# Function to start a timer so that times can be printed in other functions
 def startTimer():
-    # Starting Timer
     print("************************************")
     print("-- STARTING TIMER --")
+    # Starting Timer and returning resulting value to calculate total time
     start_time = time.time()
     print(f"-- RUNTIME: [{time.time() - start_time}] --\n")
     return start_time
 
-
+# Function to stop the timer and calculate total time passed
 def stopTimer(start_time, caller):
     global total_time
     global load_time
@@ -39,7 +43,7 @@ def stopTimer(start_time, caller):
     global search_year_time
     global search_temp_time
 
-    # Stopping Timer
+    # Stopping Timer, calculating time for specific function and total time
     print("\n-- STOPPING TIMER --")
     print(f"-- RUNTIME: [{time.time() - start_time}] --")
     print("************************************")
@@ -60,7 +64,7 @@ def stopTimer(start_time, caller):
 
     total_time += time.time() - start_time
 
-
+# Function to load data from files
 def loadData():
     global data
     global new_data_flag
@@ -73,17 +77,22 @@ def loadData():
     # Starting Timer
     start_time = startTimer()
 
-    # Read data in from file and store in pandas dataframe
+    # If the file name is empty default to US_Accidents
     print("Loading input data set:")
     if(fileName == ""):
+        # Read data in from file and store in pandas dataframe
         data = pd.read_csv('US_Accidents_data.csv', index_col = 0)
         print(f"[{time.time() - start_time}] Loading US_Accidents_data.csv")
     else:
+        # Try reading file
         try:
+            # Read data in from file and store in pandas dataframe
             data = pd.read_csv(fileName)
             print(f"[{time.time() - start_time}] Loading {fileName}")
         except:
+            # If file can't be read make an empty data frame to avoid errors
             data = pd.DataFrame()
+            # Notify user that file couldn't be read
             print("-- File entered could not be read. --")
     
     # Check if data set has columns needed to process it
@@ -95,6 +104,8 @@ def loadData():
         data.columns or 'Visibility(mi)' not in data.columns or
         'Weather_Condition' not in data.columns):
 
+        # If any of the columns are not found tell the user the data can't be..
+        # .. used and create an empty data frame
         print("-- File not suitable for processing, necessary data not found",
             "in file. Choose another file. --")
         data = pd.DataFrame()
@@ -102,6 +113,7 @@ def loadData():
     # Stopping Timer
     stopTimer(start_time, 1)
 
+    # Clear flags about if data is clean or new
     new_data_flag = 0
     data_clean_flag = 0
 
@@ -111,16 +123,17 @@ def dataCleanup():
     global new_data_flag
     global data_clean_flag
 
+    # If the data is empty, don't attempt to clean it
     if(data.empty):
         print("-- ERROR: No data to clean. Load data first. --")
         return data
+    # If data has already been cleaned, don't attempt to clean it
     elif(new_data_flag == 1):
         print("No new data has been loaded. Load new data before cleaning.")
         return data
     
     # Starting Timer
     start_time = startTimer()
-
     print("Cleaning input data set:")
     print(f"[{time.time() - start_time}] Performing Data Clean Up")
 
@@ -151,6 +164,7 @@ def dataCleanup():
     # Stopping Timer
     stopTimer(start_time, 2)
 
+    # Set flags signifying data has been cleaned and is not new
     new_data_flag = 1
     data_clean_flag = 1
 
@@ -158,9 +172,11 @@ def dataCleanup():
 def answerQuestions():
     global data
 
+    # If data is empty, don't attempt to answer questions
     if(data.empty):
         print("-- ERROR: No data. Load data first. --")
         return data
+    # If data has not been cleaned, do necessary reformating
     elif(data_clean_flag != 1):
         print("-- Data has NOT been cleaned. Data SHOULD be cleaned before",
             "answering questions. --")
@@ -172,7 +188,7 @@ def answerQuestions():
 
     print("Answering questions:")
     print("********************")
-
+    
     ###########################################################
     #                          Question 1
 
@@ -246,6 +262,7 @@ def answerQuestions():
     print(f"[{time.time() - start_time}]",
     "4. What severity is the most common in Virginia?")
 
+    # Copy necessary columns and only store rows that have VA as state
     sev_Virginia = data.loc[:, ('Severity', 'State')]
     sev_Virginia = sev_Virginia [sev_Virginia['State'] == "VA"]
     
@@ -266,6 +283,7 @@ def answerQuestions():
     "5. What are the 5 cities that had the most accidents in 2019 in",
     "California?")
 
+    # Copy necessary files and get only rows with 2019 and CA in them
     cali_2019 = data.loc[:, ('Start_Time', 'City', 'State')]
     cali_2019 = cali_2019 [cali_2019['Start_Time'].dt.year == 2019]
     cali_2019 = cali_2019 [cali_2019['State'] == "CA"]
@@ -290,13 +308,17 @@ def answerQuestions():
     "6. What was the average humidity and average temperature of all",
     "accidents of severity 4 that occurred in 2021?")
 
+    # Copy necessary columns and gather only rows with sev for and year 2021
     temp_2021 = data.loc[:, ('Severity', 'Start_Time', 'Temperature(F)', 
         'Humidity(%)')]
     temp_2021 = temp_2021 [temp_2021['Severity'] == 4]
     temp_2021 = temp_2021 [temp_2021['Start_Time'].dt.year == 2021]
+
+    # Calculate mean value
     av_humidity = round(temp_2021['Humidity(%)'].mean(), 2)
     av_temp = round(temp_2021['Temperature(F)'].mean(), 2)
 
+    # If no value is found, store a replacement value
     if(pd.isna(av_humidity)):
         av_humidity = "unable to be calculated"
     if(pd.isna(av_temp)):
@@ -313,9 +335,11 @@ def answerQuestions():
     "7. What are the 3 most common weather conditions (weather_conditions)",
     "when accidents occurred?")
 
+    # Copy necessary column and get top 3 values
     top_weather = data.loc[:, ('Weather_Condition')]
     top_weather = top_weather.value_counts()[:3]
 
+    # Print the values unless no values were stored
     try:
         print(f"[{time.time() - start_time}] The 3 most common weather",
         f"conditions were {top_weather.index.tolist()[0]} with",
@@ -334,6 +358,7 @@ def answerQuestions():
     "8. What was the maximum visibility of all accidents of severity 2 that",
     "occurred in the state of New Hampshire?")
 
+    # Copy necessary columns and apply constraints to get correct rows
     NH_vis = data.loc[:, ('Severity', 'State', 'Visibility(mi)')]
     NH_vis = NH_vis [NH_vis['Severity'] == 2]
     NH_vis = NH_vis [NH_vis['State'] == "NH"]
@@ -354,10 +379,12 @@ def answerQuestions():
     print(f"[{time.time() - start_time}]",
     "9. How many accidents of each severity were recorded in Bakersfield?")
 
+    # Copy necessary columns and apply constraints to get correct rows
     sev_Bako = data.loc[:, ('Severity', 'City')]
     sev_Bako = sev_Bako [sev_Bako['City'] == "Bakersfield"]
     sev_Bako = sev_Bako['Severity'].value_counts()
 
+    # Print values unless they are out of range
     try:
         print(f"[{time.time() - start_time}] In Bakersfield there were",
         f"{sev_Bako[sev_Bako.index.tolist()[0]]} accidents of severity",
@@ -377,6 +404,7 @@ def answerQuestions():
     "10. What was the longest accident (in hours) recorded in Florida in the",
     "Spring (March, April, and May) of 2020?")
 
+    # Copy necessary columns and apply constraints to get correct rows
     longest_Flo = data.loc[:, ('Start_Time', 'End_Time', 'State')]
     longest_Flo = longest_Flo [longest_Flo['State'] == "FL"]
     longest_Flo = longest_Flo [longest_Flo['Start_Time'].dt.year == 2020]
@@ -385,6 +413,7 @@ def answerQuestions():
     longest_Flo = str((longest_Flo['End_Time'] - 
                        longest_Flo['Start_Time']).max())
 
+    # If no value is stored don't attempt to calculate hours
     if longest_Flo == "NaT":
         hours_Flo = 0
         print(f"[{time.time() - start_time}]",
@@ -408,15 +437,18 @@ def answerQuestions():
 def stateSearch():
     global data
 
+    # If data is empty don't attempt to search
     if(data.empty):
         print("-- ERROR: No data to search. Load data first. --")
         return data
+    # If data has not been cleaned warn and reformat
     elif(data_clean_flag != 1):
         print("-- Data has NOT been cleaned. Data SHOULD be cleaned before",
             "searching accidents. --")
         data['Start_Time'] = pd.to_datetime(data['Start_Time'])
         data['End_Time'] = pd.to_datetime(data['End_Time'])
 
+    # Get user input for the search
     print("Search Accidents:")
     print("*****************")
     inState = input("  Enter a State name:     ")
@@ -425,12 +457,13 @@ def stateSearch():
 
     #################################################
 
-    # Starting Timer again because we only want to time the query of the data
+    # Starting Timer here because we only want to time the query of the data
     start_time = startTimer()
 
     # Copy required columns of data frame
     ac_search = data.loc[:, ('State', 'City', 'Zipcode')]
 
+    # If input is empty set output to be empty, otherwise fill output string
     if(inState == ""):
         outState = ""
     else:
@@ -447,8 +480,10 @@ def stateSearch():
         outZIP = f"in ZIP: {inZIP} "
         ac_search = ac_search [ac_search['Zipcode'] == inZIP]
     
+    # Count amount of accidents
     accident_count = len(ac_search.index)
 
+    # Print results, if all inputs are empty print total amount
     if(inState == "" and inCity == "" and inZIP == ""):
         accident_count = len(data.index)
         output = f"There were {accident_count} accidents overall."
@@ -464,25 +499,28 @@ def stateSearch():
 def yearSearch():
     global data
 
+    # If data is empty don't attempt to search
     if(data.empty):
         print("-- ERROR: No data to search. Load data first. --")
         return data
+    # If data has not been cleaned warn and reformat
     elif(data_clean_flag != 1):
         print("-- Data has NOT been cleaned. Data SHOULD be cleaned before",
             "searching accidents. --")
         data['Start_Time'] = pd.to_datetime(data['Start_Time'])
         data['End_Time'] = pd.to_datetime(data['End_Time'])
 
+    # Get user input for the search
     print("Search Accidents:")
     print("*****************")
     inYear = input("  Enter a year (2016-2021):   ")
     inMonth = input("  Enter a month:              ")
     inDay = input("  Enter a day:                ")
 
+    # Set flags for if input is empty
     emptyYearVal = 0
     emptyMonthVal = 0
     emptyDayVal = 0
-
     try:
         inYear = int(inYear)
     except ValueError:
@@ -507,6 +545,7 @@ def yearSearch():
     ac_search['Month'] = data['Start_Time'].dt.month
     ac_search['Day'] = data['Start_Time'].dt.day
 
+    # Fill variables for output
     if(emptyYearVal == 0):
         ac_search = ac_search [ac_search['Year'] == inYear]
         outYear = f"the year: {inYear} "
@@ -522,6 +561,8 @@ def yearSearch():
         outDay = f"the day: {inDay} "
     else:
         outDay = ""
+    
+    # Count amount of accidents
     accident_count = len(ac_search.index)
 
     if(emptyYearVal != 0 and emptyMonthVal != 0 and emptyDayVal != 0):
@@ -537,9 +578,11 @@ def yearSearch():
 def tempSearch():
     global data
 
+    # If data is empty don't attempt to search
     if(data.empty):
         print("-- ERROR: No data to search. Load data first. --")
         return data
+    # If data has not been cleaned warn and reformat
     elif(data_clean_flag != 1):
         print("-- Data has NOT been cleaned. Data SHOULD be cleaned before",
             "searching accidents. --")
@@ -558,21 +601,19 @@ def tempSearch():
     # Copy required columns of data frame
     ac_search = data.loc[:, ('Temperature(F)', 'Visibility(mi)')]
 
+    # Get input values or min or max of variable
     try:
         inTempLow = float(inTempLow)
     except ValueError:
         inTempLow = ac_search['Temperature(F)'].min()
-    
     try:
         inTempHigh = float(inTempHigh)
     except ValueError:
         inTempHigh = ac_search['Temperature(F)'].max()
-    
     try:
         inVisLow = float(inVisLow)
     except ValueError:
         inVisLow = ac_search['Visibility(mi)'].min()
-    
     try:
         inVisHigh = float(inVisHigh)
     except ValueError:
@@ -583,13 +624,15 @@ def tempSearch():
     # Starting Timer again because we only want to time the query of the data
     start_time = startTimer()
 
+    # Copy and format required data
     ac_search = ac_search [ac_search['Temperature(F)'] >= inTempLow]
     ac_search = ac_search [ac_search['Temperature(F)'] <= inTempHigh]
     ac_search = ac_search [ac_search['Visibility(mi)'] >= inVisLow]
     ac_search = ac_search [ac_search['Visibility(mi)'] <= inVisHigh]
-    accident_count = len(ac_search.index)
 
     # Number of all accidents
+    accident_count = len(ac_search.index)
+
     print(f"[{time.time() - start_time}] {accident_count}",
     f"accident(s) with temps in the range of {inTempLow} to {inTempHigh}",
     f"degrees and visibility in the range of {inVisLow} to {inVisHigh}")
@@ -612,6 +655,7 @@ def menu():
     searchTempCount = 0
     search_temp_av = 0
     
+    # Print menu in while loop until 7 is entered
     while(menuOption != '7'):
         print("\n----           MENU:           ----")
         print("(1) Load data")
@@ -625,6 +669,8 @@ def menu():
         menuOption = input("Enter an option:  ")
         print("\n")
 
+        # Call corresponding function and increase amount of times that..
+        # .. function has been called for later average times
         if(menuOption == '1'):
             loadData()
             loadCount += 1
@@ -644,6 +690,7 @@ def menu():
             tempSearch()
             searchTempCount += 1
     
+    # Print timing results of each function and total time overall
     print("\n----           TIMING RESULTS:           ----")
     print("Total runtime of program parts:", total_time, "\n")
     if(loadCount != 0):
